@@ -1,0 +1,21 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "18.19.1",
+    "sdksVersions": {
+      "@microsoft/microsoft-graph-client": "3.0.2",
+      "@microsoft/teams-js": "2.12.0"
+    },
+    "version": "1.18.2",
+    "libraryName": "mbh-repo",
+    "libraryId": "1038a4a3-accf-4f10-ae4a-595f296ccf7f",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "mbh-repo",
+    "solutionShortDescription": "mbh-repo description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}

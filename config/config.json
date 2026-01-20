@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "product-catalogue-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/productCatalogue/ProductCatalogueWebPart.js",
+          "manifest": "./src/webparts/productCatalogue/ProductCatalogueWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "ProductCatalogueWebPartStrings": "lib/webparts/productCatalogue/loc/{locale}.js"
+  }
+}

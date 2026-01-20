@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "mbh-repo-client-side-solution",
+    "id": "1038a4a3-accf-4f10-ae4a-595f296ccf7f",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.18.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "mbh-repo description"
+      },
+      "longDescription": {
+        "default": "mbh-repo description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "mbh-repo Feature",
+        "description": "The feature that activates elements of the mbh-repo solution.",
+        "id": "b284b817-57b6-4396-ad37-20ea48330744",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/mbh-repo.sppkg"
+  }
+}
