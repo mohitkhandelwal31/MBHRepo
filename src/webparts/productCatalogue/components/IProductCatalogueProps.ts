@@ -4,4 +4,5 @@ export interface IProductCatalogueProps {
   environmentMessage: string;
   hasTeamsContext: boolean;
   userDisplayName: string;
+  context: any;
 }

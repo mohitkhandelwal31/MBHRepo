@@ -5,6 +5,7 @@
   padding: 1em;
   color: "[theme:bodyText, default: #323130]";
   color: var(--bodyText);
+
   &.teams {
     font-family: $ms-font-family-fallbacks;
   }
@@ -31,4 +32,59 @@
       color: var(--linkHovered); // note: CSS Custom Properties support is limited to modern browsers only
     }
   }
+}
+
+.lightsList {
+  margin-top: 20px;
+
+  .lightsGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+
+  .lightCard {
+    width: 200px;
+
+    @media (max-width: 768px) {
+      width: 100%;
+      max-width: 300px;
+    }
+  }
+
+  .titleContainer {
+    max-height: 20px;
+    overflow: hidden;
+  }
+
+  .priceContainer,
+  .productContainer,
+  .quantityContainer,
+  .titleContainer {
+    .attribute {
+      font-size: 12px;
+    }
+
+    .attributeValue {
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    display: flex;
+    justify-content: space-between;
+
+  }
+}
+
+.lightItem {
+  padding: 10px;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+  border-radius: 4px;
 }
