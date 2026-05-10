@@ -17,6 +17,7 @@ export interface IProductCatalogueState {
   selectedLight: any;
   selectedCategory: string;
   searchTerm: string;
+  isSiteOwner: boolean;
 }
 
 // Combined category options for merged results
@@ -40,14 +41,25 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
       showModal: false,
       selectedLight: null,
       selectedCategory: 'All',
-      searchTerm: ''
+      searchTerm: '',
+      isSiteOwner: false
     };
     this.spServices = new spservices(props.context.pageContext);
     this.inventoryFormRef = React.createRef<InventoryForm>();
   }
 
   componentDidMount(): void {
+    this.checkSiteOwnerGroup();
     this.getDataBasedOnLightType();
+  }
+
+  private checkSiteOwnerGroup = async (): Promise<void> => {
+    try {
+      const isSiteOwner = await this.spServices.isCurrentUserInOwnersGroup();
+      this.setState({ isSiteOwner });
+    } catch (error) {
+      console.error('Error checking site owner group:', error);
+    }
   }
 
   private refreshInventory = () => {
@@ -91,10 +103,12 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
             <div className={styles.attribute}>Price</div>
             <div className={styles.attributeValue}>{light.Price?.toFixed(2)}</div>
           </div>
-          <div className={styles.actualPriceContainer}>
-            <div className={styles.attribute}>Quantity</div>
-            <div className={styles.attributeValue}>{light.Actualprice?.toFixed(2)}</div>
-          </div>
+          {this.state.isSiteOwner && (
+            <div className={styles.actualPriceContainer}>
+              <div className={styles.attribute}>A.Price</div>
+              <div className={styles.attributeValue}>{light.Actualprice?.toFixed(2)}</div>
+            </div>
+          )}
           <div className={styles.productContainer}>
             <div className={styles.attribute}>Product Code</div>
             <div className={styles.attributeValue}>{light.ProductCode}</div>
@@ -172,7 +186,9 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
       );
     }
 
-
+    const inStockLights = filteredLights.filter(light => light.availableQuantity > 0);
+    const outOfStockLights = filteredLights.filter(light => light.availableQuantity === 0);
+    const sortedLights = [...inStockLights, ...outOfStockLights];
 
     return (
       <section className={`${styles.productCatalogue} ${hasTeamsContext ? styles.teams : ''}`}>
@@ -212,7 +228,7 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
             />
           </div>
           <div className={styles.lightsGrid}>
-            {filteredLights.map(light => (
+            {sortedLights.map(light => (
               <div key={`${light.sourceList}-${light.Id}`} onClick={() => this.setState({ selectedLight: light, showModal: true })}>
                 {this.renderLightCard(light)}
               </div>

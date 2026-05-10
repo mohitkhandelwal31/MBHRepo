@@ -13,6 +13,7 @@ export interface IInventoryState {
   selectedProductTitle?: string;
   showHistoryModal: boolean;
   selectedHistoryProduct?: any;
+  isSiteOwner: boolean;
 }
 
 export default class Inventory extends React.Component<IInventoryProps, IInventoryState> {
@@ -29,13 +30,23 @@ export default class Inventory extends React.Component<IInventoryProps, IInvento
       selectedProductImageUrl: undefined,
       selectedProductTitle: undefined,
       showHistoryModal: false,
-      selectedHistoryProduct: undefined
+      selectedHistoryProduct: undefined,
+      isSiteOwner: false
     };
 
     this.spServices = new spservices(props.context.pageContext);
   }
+  private checkSiteOwnerGroup = async (): Promise<void> => {
+    try {
+      const isSiteOwner = await this.spServices.isCurrentUserInOwnersGroup();
+      this.setState({ isSiteOwner });
+    } catch (error) {
+      console.error('Error checking site owner group:', error);
+    }
+  }
 
   public componentDidMount(): void {
+    this.checkSiteOwnerGroup();
     this.loadInventoryDetails();
   }
 
@@ -105,11 +116,8 @@ export default class Inventory extends React.Component<IInventoryProps, IInvento
 
         const quantity = Number(item.Quantity) || 0;
         const title = item.Title || item.ProductCode || 'Inventory entry';
-        const eventType = quantity < 0
-          ? 'Sold'
-          : /sold|sale|dispatch|issue|out/i.test(title)
-            ? 'Sold'
-            : 'Added';
+
+        let eventType = item.Event;
 
         if (!acc[code]) {
           acc[code] = [];
@@ -171,10 +179,16 @@ export default class Inventory extends React.Component<IInventoryProps, IInvento
         const item = productMap[code];
         const soldQuantity = soldQuantitiesByCode[code] || 0;
         const remainingQuantity = Math.max(0, item.originalQuantity - soldQuantity);
+
+        const lastEventType = item.history && item.history.length > 0
+          ? item.history[item.history.length - 1].event
+          : 'Added';
+
         return {
           ...item,
           soldQuantity,
-          remainingQuantity
+          remainingQuantity,
+          lastEventType
         };
       });
 
@@ -187,11 +201,11 @@ export default class Inventory extends React.Component<IInventoryProps, IInvento
 
   public render(): React.ReactElement<IInventoryProps> {
     const {
-    
-      hasTeamsContext,     
+
+      hasTeamsContext,
     } = this.props;
 
-const { inventoryDetails, loading, error, showImageModal, selectedProductImageUrl, selectedProductTitle, showHistoryModal, selectedHistoryProduct } = this.state;
+    const { inventoryDetails, loading, error, showImageModal, selectedProductImageUrl, selectedProductTitle, showHistoryModal, selectedHistoryProduct } = this.state;
 
     const totalDistinctProducts = inventoryDetails.length;
     const totalSold = inventoryDetails.reduce((sum, item) => sum + (item.soldQuantity || 0), 0);
@@ -199,7 +213,7 @@ const { inventoryDetails, loading, error, showImageModal, selectedProductImageUr
     const remainingProducts = inventoryDetails.filter(item => item.remainingQuantity > 0).length;
 
     return (
-      <section className={`${styles.inventory} ${hasTeamsContext ? styles.teams : ''}`}>        
+      <section className={`${styles.inventory} ${hasTeamsContext ? styles.teams : ''}`}>
         <div className={styles.inventorySummary}>
           <h3>Inventory Sold / Remaining Detail</h3>
           {loading ? (
@@ -223,7 +237,7 @@ const { inventoryDetails, loading, error, showImageModal, selectedProductImageUr
                     <th className={styles.numberCell}>Stock</th>
                     <th className={styles.numberCell}>Sold</th>
                     <th className={styles.numberCell}>Remaining</th>
-                    <th>More details</th>
+                    {this.state.isSiteOwner ? <th>More details</th> : ""}
                   </tr>
                 </thead>
                 <tbody>
@@ -247,7 +261,7 @@ const { inventoryDetails, loading, error, showImageModal, selectedProductImageUr
                       <td className={styles.numberCell}>{item.originalQuantity}</td>
                       <td className={styles.numberCell}>{item.soldQuantity}</td>
                       <td className={styles.numberCell}>{item.remainingQuantity}</td>
-                      <td>
+                      {this.state.isSiteOwner ? <td>
                         <button
                           type="button"
                           className={styles.detailsButton}
@@ -255,7 +269,7 @@ const { inventoryDetails, loading, error, showImageModal, selectedProductImageUr
                         >
                           View history
                         </button>
-                      </td>
+                      </td> : ""}
                     </tr>
                   ))}
                 </tbody>

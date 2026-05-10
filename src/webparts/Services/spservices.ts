@@ -1,6 +1,7 @@
 import { RequestDigest, SPFI, spfi, SPFx } from '@pnp/sp';
 import { WebPartContext } from "@microsoft/sp-webpart-base";
 import "@pnp/sp/webs";
+import "@pnp/sp/site-users/web";
 import "@pnp/sp/lists";
 import "@pnp/sp/items";
 
@@ -33,11 +34,21 @@ export default class spservices {
 
     getInventoryItems = async (context: WebPartContext): Promise<any[]> => {
         try {
-            const items = await this.sp.web.lists.getByTitle("Inventory").items.select("Id", "Title", "ProductCode", "Quantity", "Price", "Created")();
+            const items = await this.sp.web.lists.getByTitle("Inventory").items.select("Id", "Title", "ProductCode", "Quantity", "Price", "Created","Event")();
             return items;
         } catch (error) {
             console.error("Error fetching items from Inventory list:", error);
             throw error;
+        }
+    };
+
+    isCurrentUserInOwnersGroup = async (): Promise<boolean> => {
+        try {
+            const groups = await this.sp.web.currentUser.groups();
+            return groups.some((group: any) => /MBH Owners$/i.test(group.Title));
+        } catch (error) {
+            console.error("Error checking user group membership:", error);
+            return false;
         }
     };
 
