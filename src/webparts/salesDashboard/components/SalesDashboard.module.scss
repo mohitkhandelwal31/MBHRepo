@@ -1,0 +1,103 @@
+@import '~office-ui-fabric-react/dist/sass/References.scss';
+
+.salesDashboard {
+  overflow: hidden;
+  padding: 1em;
+  color: "[theme:bodyText, default: #323130]";
+  color: var(--bodyText);
+  &.teams {
+    font-family: $ms-font-family-fallbacks;
+  }
+}
+
+.welcome {
+  text-align: center;
+}
+
+.welcomeImage {
+  width: 100%;
+  max-width: 420px;
+}
+
+.links {
+  a {
+    text-decoration: none;
+    color: "[theme:link, default:#03787c]";
+    color: var(--link); // note: CSS Custom Properties support is limited to modern browsers only
+
+    &:hover {
+      text-decoration: underline;
+      color: "[theme:linkHovered, default: #014446]";
+      color: var(--linkHovered); // note: CSS Custom Properties support is limited to modern browsers only
+    }
+  }
+}.salesTablePanel {
+  margin-top: 2rem;
+}
+
+.salesHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.salesButton {
+  background-color: #0078d4;
+  color: #ffffff;
+  border: none;
+  border-radius: 2px;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+}
+
+.salesButton:hover {
+  background-color: #005a9e;
+}
+
+.salesTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.salesTable th,
+.salesTable td {
+  border: 1px solid #e1dfdd;
+  padding: 0.85rem;
+  text-align: left;
+}
+
+.salesTable th {
+  background: #f3f2f1;
+}
+
+.empty {
+  padding: 1rem 0;
+  color: #605e5c;
+}
+
+.errorText {
+  color: #a80000;
+  margin-bottom: 1rem;
+}
+
+.salesSummary {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f8f8f8;
+  border-radius: 4px;
+  border: 1px solid #e1dfdd;
+}
+
+.salesSummary h4 {
+  margin: 0 0 0.5rem 0;
+  color: #323130;
+}
+
+.salesSummary p {
+  margin: 0.25rem 0;
+  color: #605e5c;
+}

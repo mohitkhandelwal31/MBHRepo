@@ -1,5 +1,5 @@
 export interface IProductCatalogueProps {
-  description: string;
+  salesDashboard: string;
   isDarkTheme: boolean;
   environmentMessage: string;
   hasTeamsContext: boolean;

@@ -1,0 +1,149 @@
+@import '~office-ui-fabric-react/dist/sass/References.scss';
+
+.inventory {
+  overflow: hidden;
+  padding: 1em;
+  color: "[theme:bodyText, default: #323130]";
+  color: var(--bodyText);
+  &.teams {
+    font-family: $ms-font-family-fallbacks;
+  }
+}
+
+.inventorySummary {
+  margin-top: 24px;
+  padding: 18px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #ffffff;
+}
+
+.summaryRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-bottom: 16px;
+}
+
+.summaryItem {
+  min-width: 180px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.inventoryTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.inventoryTable th,
+.inventoryTable td {
+  border: 1px solid #e1e1e1;
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.inventoryTable th {
+  background: #f4f4f4;
+  font-weight: 700;
+}
+
+.productLink {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #0078d4;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
+}
+
+.productLink:hover,
+.productLink:focus {
+  color: #005a9e;
+}
+
+.detailsButton {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #0078d4;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
+}
+
+.detailsButton:hover,
+.detailsButton:focus {
+  color: #005a9e;
+}
+
+.historyModal {
+  padding: 24px;
+  max-width: 720px;
+}
+
+.historyTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+
+.historyTable th,
+.historyTable td {
+  border: 1px solid #e1e1e1;
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.historyTable th {
+  background: #f4f4f4;
+  font-weight: 700;
+}
+
+.modalContent {
+  padding: 24px;
+  max-width: 520px;
+}
+
+.modalImage {
+  width: 100%;
+  max-height: 500px;
+  object-fit: contain;
+  margin-top: 16px;
+}
+
+.numberCell {
+  text-align: right;
+}
+
+.errorText {
+  color: #a80000;
+  font-weight: 600;
+}
+
+.welcome {
+  text-align: center;
+}
+
+.welcomeImage {
+  width: 100%;
+  max-width: 420px;
+}
+
+.links {
+  a {
+    text-decoration: none;
+    color: "[theme:link, default:#03787c]";
+    color: var(--link); // note: CSS Custom Properties support is limited to modern browsers only
+
+    &:hover {
+      text-decoration: underline;
+      color: "[theme:linkHovered, default: #014446]";
+      color: var(--linkHovered); // note: CSS Custom Properties support is limited to modern browsers only
+    }
+  }
+}

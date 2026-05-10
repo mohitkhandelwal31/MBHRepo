@@ -2,35 +2,35 @@ import * as React from 'react';
 import * as ReactDom from 'react-dom';
 import { Version } from '@microsoft/sp-core-library';
 import {
-  type IPropertyPaneConfiguration,
+  IPropertyPaneConfiguration,
   PropertyPaneTextField
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
 
-import * as strings from 'ProductCatalogueWebPartStrings';
-import ProductCatalogue from './components/ProductCatalogue';
-import { IProductCatalogueProps } from './components/IProductCatalogueProps';
+import * as strings from 'SalesDashboardWebPartStrings';
+import SalesDashboard from './components/SalesDashboard';
+import { ISalesDashboardProps } from './components/ISalesDashboardProps';
 
-export interface IProductCatalogueWebPartProps {
-  salesDashboard: string;
+export interface ISalesDashboardWebPartProps {
+  description: string;
 }
 
-export default class ProductCatalogueWebPart extends BaseClientSideWebPart<IProductCatalogueWebPartProps> {
+export default class SalesDashboardWebPart extends BaseClientSideWebPart<ISalesDashboardWebPartProps> {
 
   private _isDarkTheme: boolean = false;
   private _environmentMessage: string = '';
 
   public render(): void {
-    const element: React.ReactElement<IProductCatalogueProps> = React.createElement(
-      ProductCatalogue,
+    const element: React.ReactElement<ISalesDashboardProps> = React.createElement(
+      SalesDashboard,
       {
-        salesDashboard: this.properties.salesDashboard,
+        description: this.properties.description,
         isDarkTheme: this._isDarkTheme,
         environmentMessage: this._environmentMessage,
         hasTeamsContext: !!this.context.sdks.microsoftTeams,
         userDisplayName: this.context.pageContext.user.displayName,
-        context:this.context
+        context: this.context
       }
     );
 
@@ -38,14 +38,18 @@ export default class ProductCatalogueWebPart extends BaseClientSideWebPart<IProd
   }
 
   protected onInit(): Promise<void> {
- 
+    this._environmentMessage = this._getEnvironmentMessage();
 
     return super.onInit();
   }
 
+  private _getEnvironmentMessage(): string {
+    if (!!this.context.sdks.microsoftTeams) { // running in Teams
+      return this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentTeams : strings.AppTeamsTabEnvironment;
+    }
 
-
-
+    return this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentSharePoint : strings.AppSharePointEnvironment;
+  }
 
   protected onThemeChanged(currentTheme: IReadonlyTheme | undefined): void {
     if (!currentTheme) {
@@ -84,8 +88,8 @@ export default class ProductCatalogueWebPart extends BaseClientSideWebPart<IProd
             {
               groupName: strings.BasicGroupName,
               groupFields: [
-                PropertyPaneTextField('salesDashboard', {
-                  label: "Sales Dashboard link"
+                PropertyPaneTextField('description', {
+                  label: strings.DescriptionFieldLabel
                 })
               ]
             }

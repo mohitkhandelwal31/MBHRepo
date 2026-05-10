@@ -9,10 +9,28 @@
           "manifest": "./src/webparts/productCatalogue/ProductCatalogueWebPart.manifest.json"
         }
       ]
+    },
+    "sales-dashboard-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/salesDashboard/SalesDashboardWebPart.js",
+          "manifest": "./src/webparts/salesDashboard/SalesDashboardWebPart.manifest.json"
+        }
+      ]
+    },
+    "inventory-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/inventory/InventoryWebPart.js",
+          "manifest": "./src/webparts/inventory/InventoryWebPart.manifest.json"
+        }
+      ]
     }
   },
   "externals": {},
   "localizedResources": {
-    "ProductCatalogueWebPartStrings": "lib/webparts/productCatalogue/loc/{locale}.js"
+    "ProductCatalogueWebPartStrings": "lib/webparts/productCatalogue/loc/{locale}.js",
+    "SalesDashboardWebPartStrings": "lib/webparts/salesDashboard/loc/{locale}.js",
+    "InventoryWebPartStrings": "lib/webparts/inventory/loc/{locale}.js"
   }
 }

@@ -34,8 +34,69 @@
   }
 }
 
+
+.inventorySummary {
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #ffffff;
+  margin-bottom: 20px;
+}
+
+.summaryRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.remainingItemsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.remainingItem {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  background: #f8f8f8;
+  width: calc(33.333% - 8px);
+  min-width: 220px;
+}
+
+.remainingItemTitle {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+@media (max-width: 768px) {
+  .remainingItem {
+    width: 100%;
+  }
+}
+
 .lightsList {
   margin-top: 20px;
+
+   .Container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .searchContainer {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .dropdownContainer {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
 
   .lightsGrid {
     display: flex;
@@ -49,8 +110,41 @@
     }
   }
 
+  .lightCardOutOfStock {
+    width: 200px;
+    opacity: 0.5;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    position: relative;
+    cursor: pointer;
+
+    &::after {
+      content: 'Out of stock';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: red;
+      font-size: 16px;
+      font-weight: bold;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 5px 10px;
+      border-radius: 4px;
+      pointer-events: none;
+      text-align: -webkit-center;
+    }
+
+    @media (max-width: 768px) {
+      width: 100%;
+      max-width: 300px;
+    }
+  }
+
   .lightCard {
     width: 200px;
+    cursor: pointer;
 
     @media (max-width: 768px) {
       width: 100%;
@@ -64,21 +158,47 @@
   }
 
   .priceContainer,
+  .actualPriceContainer,
   .productContainer,
   .quantityContainer,
+  .categoryContainer,
+  .colorContainer,
   .titleContainer {
     .attribute {
       font-size: 12px;
     }
 
     .attributeValue {
-      font-size: 14px;
-      font-weight: bold;
+      font-size: 13px;
+      font-weight: 600;
     }
 
+    padding: 0px 10px 0px 10px;
     display: flex;
     justify-content: space-between;
 
+  }
+
+  .actualPriceContainer{
+    .attributeValue {
+      color: red;
+    }
+  }
+}
+
+.modalContainer {
+ padding: 10px;
+}
+
+.inventoryForm {
+  margin-bottom: 20px;
+
+  .formActions {
+    margin-bottom: 15px;
+  }
+
+  .formContainer {
+    padding: 10px 0;
   }
 }
 
