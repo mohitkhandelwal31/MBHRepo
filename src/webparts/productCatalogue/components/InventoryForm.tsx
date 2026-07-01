@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styles from './ProductCatalogue.module.scss';
 import { TextField } from '@fluentui/react/lib/TextField';
-// import { Dropdown, IDropdownOption } from '@fluentui/react/lib/Dropdown';
+import { Dropdown, IDropdownOption } from '@fluentui/react/lib/Dropdown';
 import { PrimaryButton, DefaultButton } from '@fluentui/react/lib/Button';
 import { Dialog, DialogType, DialogFooter } from '@fluentui/react/lib/Dialog';
 import spservices from '../../Services/spservices';
@@ -19,25 +19,29 @@ export interface IInventoryFormState {
         Color?: string;
         CompanyType?: string;
         ProductPicture?: any;
+        Event?: string;
     };
     listType: 'decorative' | 'standard';
     productImageUrl: string | null;
     Category: string;
     searchedProduct: any | null;
 }
-
-// const categoryOptions: IDropdownOption[] = [
-//     { key: 'Hanging Light', text: 'Hanging Light' },
-//     { key: 'Wall Light', text: 'Wall Light' },
-//     { key: 'Chandelier', text: 'Chandelier' },
-//     { key: 'Elevation Light', text: 'Elevation Light' },
-//     { key: 'Mirror Light', text: 'Mirror Light' }
-// ];
+const eventTypeOptions: IDropdownOption[] = [
+    {
+        key: 'Added',
+        text: 'Added'
+    },
+    {
+        key: 'Sold',
+        text: 'Sold'
+    }
+]
 
 interface IInventoryFormProps {
     context: any;
     onInventoryUpdated: () => void;
     lights: any[];
+    isSiteOwner: boolean;
 }
 
 export default class InventoryForm extends React.Component<IInventoryFormProps, IInventoryFormState> {
@@ -55,7 +59,8 @@ export default class InventoryForm extends React.Component<IInventoryFormProps, 
                 Quantity: 0,
                 Category: '',
                 Color: '',
-                CompanyType: ''
+                CompanyType: '',
+                Event: ''
             },
             listType: 'decorative',
             productImageUrl: null,
@@ -140,6 +145,7 @@ export default class InventoryForm extends React.Component<IInventoryFormProps, 
                 ProductCode: formData.ProductCode,
                 Price: formData.Price,
                 Quantity: formData.Quantity,
+                Event: formData.Event,
                 Category: this.state.Category,
                 Date: new Date().toISOString()
             };
@@ -194,7 +200,7 @@ export default class InventoryForm extends React.Component<IInventoryFormProps, 
                             options={categoryOptions}
                             onChange={(event, option) => this.handleInputChange('Category', option?.key as string)}
                             styles={{ dropdown: { marginBottom: 15 } }}
-                        /> */}                        
+                        /> */}
                         <TextField
                             label="Product Code"
                             value={formData.ProductCode}
@@ -203,9 +209,9 @@ export default class InventoryForm extends React.Component<IInventoryFormProps, 
                             placeholder="Enter product code to see image"
                             styles={{ fieldGroup: { marginBottom: 15 } }}
                         />
-                         <TextField
+                        <TextField
                             label="Category"
-                            value={this.state.Category}                                                       
+                            value={this.state.Category}
                             styles={{ fieldGroup: { marginBottom: 15 } }}
                             disabled
                         />
@@ -233,7 +239,7 @@ export default class InventoryForm extends React.Component<IInventoryFormProps, 
                             value={formData.Price.toString()}
                             onChange={(event, newValue) => this.handleInputChange('Price', parseFloat(newValue || '0'))}
                             styles={{ fieldGroup: { marginBottom: 15 } }}
-                             required
+                            required
                         />
                         <TextField
                             label="Quantity"
@@ -241,8 +247,22 @@ export default class InventoryForm extends React.Component<IInventoryFormProps, 
                             value={formData.Quantity.toString()}
                             onChange={(event, newValue) => this.handleInputChange('Quantity', parseInt(newValue || '0'))}
                             styles={{ fieldGroup: { marginBottom: 15 } }}
-                             required
+                            required
                         />
+                        {this.props.isSiteOwner ? <Dropdown
+                            label="Event Type"
+                            selectedKey={formData.Event}
+                            options={eventTypeOptions}
+                            onChange={(event, option) => this.handleInputChange('Event', option?.key)}
+                            styles={{ dropdown: { marginBottom: 15 } }}
+                        /> :
+                            <TextField
+                                label="Event Type"
+                                value={formData.Event}
+                                defaultValue="Sold"
+                                styles={{ fieldGroup: { marginBottom: 15 } }}
+                                disabled
+                            />}
                     </div>
                     <DialogFooter>
                         <PrimaryButton onClick={this.handleSubmit} text={isEditMode ? 'Update' : 'Add'} />

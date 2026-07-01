@@ -2,37 +2,36 @@ import * as React from 'react';
 import * as ReactDom from 'react-dom';
 import { Version } from '@microsoft/sp-core-library';
 import {
-  type IPropertyPaneConfiguration,
+  IPropertyPaneConfiguration,
   PropertyPaneTextField
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
 
-import * as strings from 'ProductCatalogueWebPartStrings';
-import ProductCatalogue from './components/ProductCatalogue';
-import { IProductCatalogueProps } from './components/IProductCatalogueProps';
+import * as strings from 'AdminDashboardWebPartStrings';
+import AdminDashboard from './components/AdminDashboard';
+import { IAdminDashboardProps } from './components/IAdminDashboardProps';
 
-export interface IProductCatalogueWebPartProps {
+export interface IAdminDashboardWebPartProps {
   adminDashboard: string;
-  inventoryList:string;
+  inventoryList: string;
 }
 
-export default class ProductCatalogueWebPart extends BaseClientSideWebPart<IProductCatalogueWebPartProps> {
+export default class AdminDashboardWebPart extends BaseClientSideWebPart<IAdminDashboardWebPartProps> {
 
   private _isDarkTheme: boolean = false;
   private _environmentMessage: string = '';
 
   public render(): void {
-    const element: React.ReactElement<IProductCatalogueProps> = React.createElement(
-      ProductCatalogue,
+    const element: React.ReactElement<IAdminDashboardProps> = React.createElement(
+      AdminDashboard,
       {
         adminDashboard: this.properties.adminDashboard,
         inventoryList: this.properties.inventoryList,
         isDarkTheme: this._isDarkTheme,
         environmentMessage: this._environmentMessage,
         hasTeamsContext: !!this.context.sdks.microsoftTeams,
-        userDisplayName: this.context.pageContext.user.displayName,
-        context:this.context
+        userDisplayName: this.context.pageContext.user.displayName
       }
     );
 
@@ -40,14 +39,18 @@ export default class ProductCatalogueWebPart extends BaseClientSideWebPart<IProd
   }
 
   protected onInit(): Promise<void> {
- 
+    this._environmentMessage = this._getEnvironmentMessage();
 
     return super.onInit();
   }
 
+  private _getEnvironmentMessage(): string {
+    if (!!this.context.sdks.microsoftTeams) { // running in Teams
+      return this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentTeams : strings.AppTeamsTabEnvironment;
+    }
 
-
-
+    return this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentSharePoint : strings.AppSharePointEnvironment;
+  }
 
   protected onThemeChanged(currentTheme: IReadonlyTheme | undefined): void {
     if (!currentTheme) {

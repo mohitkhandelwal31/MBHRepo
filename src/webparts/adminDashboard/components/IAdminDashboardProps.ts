@@ -1,9 +1,8 @@
-export interface IProductCatalogueProps {
+export interface IAdminDashboardProps {
   adminDashboard: string;
-  inventoryList:string;
+  inventoryList: string;
   isDarkTheme: boolean;
   environmentMessage: string;
   hasTeamsContext: boolean;
   userDisplayName: string;
-  context: any;
 }

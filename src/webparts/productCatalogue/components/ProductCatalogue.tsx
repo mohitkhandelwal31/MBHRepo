@@ -9,6 +9,9 @@ import { TextField } from '@fluentui/react/lib/TextField';
 import spservices from '../../Services/spservices';
 import InventoryForm from './InventoryForm';
 import { PrimaryButton } from 'office-ui-fabric-react/lib/components/Button/PrimaryButton/PrimaryButton';
+// import { Toggle } from '@fluentui/react';
+import GalleryView from './GalleryView/GalleryView';
+import { Toggle } from '@fluentui/react/lib/Toggle';
 
 export interface IProductCatalogueState {
   lights: any[];
@@ -18,6 +21,7 @@ export interface IProductCatalogueState {
   selectedCategory: string;
   searchTerm: string;
   isSiteOwner: boolean;
+  showImageOrProductView: boolean;
 }
 
 // Combined category options for merged results
@@ -42,7 +46,8 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
       selectedLight: null,
       selectedCategory: 'All',
       searchTerm: '',
-      isSiteOwner: false
+      isSiteOwner: false,
+      showImageOrProductView: true
     };
     this.spServices = new spservices(props.context.pageContext);
     this.inventoryFormRef = React.createRef<InventoryForm>();
@@ -66,34 +71,11 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
     this.getDataBasedOnLightType();
   }
 
-  // private handleEditLight = (light: any, event: React.MouseEvent) => {
-  //   event.stopPropagation(); // Prevent modal from opening
-  //   if (this.inventoryFormRef.current) {
-  //     this.inventoryFormRef.current.editLight(light);
-  //   }
-  // }
-
   private renderLightCard = (light: any) => {
     return (
       <DocumentCard key={light.Id} className={light.availableQuantity > 0 ? styles.lightCard : styles.lightCardOutOfStock}>
         <DocumentCardDetails>
           <div style={{ position: 'relative' }}>
-            {/* <IconButton
-              iconProps={{ iconName: 'Edit' }}
-              title="Edit"
-              ariaLabel="Edit"
-             // onClick={(event) => this.handleEditLight(light, event)}
-              styles={{
-                root: {
-                  position: 'absolute',
-                  top: 5,
-                  right: 5,
-                  zIndex: 1,
-                  backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                  border: '1px solid #ccc'
-                }
-              }}
-            /> */}
             <img src={light.ProductPicture?.Url} alt={light.ProductPicture?.Url} style={{ width: '100%', height: '200px', objectFit: 'fill' }} />
           </div>
           <div className={styles.titleContainer}>
@@ -135,11 +117,20 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
         this.spServices.getInventoryItems(this.props.context)
       ]);
 
-      const soldQuantitiesByCode = inventoryItems.reduce((acc: Record<string, number>, item: any) => {
+      const inventoryImpactByCode = inventoryItems.reduce((acc: Record<string, { added: number; sold: number }>, item: any) => {
         const key = (item.ProductCode || '').toString().trim().toLowerCase();
         const quantity = Number(item.Quantity) || 0;
-        if (key && quantity > 0) {
-          acc[key] = (acc[key] || 0) + quantity;
+        if (!key || quantity === 0) {
+          return acc;
+        }
+        const eventType = (item.Event || 'Added').toString().trim().toLowerCase();
+        if (!acc[key]) {
+          acc[key] = { added: 0, sold: 0 };
+        }
+        if (eventType === 'sold') {
+          acc[key].sold += quantity;
+        } else {
+          acc[key].added += quantity;
         }
         return acc;
       }, {});
@@ -149,8 +140,8 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
         ...lights.map(item => ({ ...item, sourceList: 'Lights' }))
       ].map(light => {
         const code = (light.ProductCode || '').toString().trim().toLowerCase();
-        const soldQty = soldQuantitiesByCode[code] || 0;
-        const availableQuantity = Math.max(0, (Number(light.Quantity) || 0) - soldQty);
+        const inventoryImpact = inventoryImpactByCode[code] || { added: 0, sold: 0 };
+        const availableQuantity = Math.max(0, (Number(light.Quantity) || 0) + inventoryImpact.added - inventoryImpact.sold);
         return {
           ...light,
           availableQuantity,
@@ -163,9 +154,15 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
       console.error("Error fetching merged lights items:", error);
     }
   }
-  salesDashboardUrl = () => {
-    window.open(this.props.salesDashboard, '_self');
+  navigateUrl = (navigateURL: string) => {
+    window.open(navigateURL, '_self');
   };
+
+  onViewChange = (_ev: React.MouseEvent<HTMLElement>, checked?: boolean) => {
+    this.setState({
+      showImageOrProductView: !!checked
+    });
+  }
 
 
   public render(): React.ReactElement<IProductCatalogueProps> {
@@ -192,66 +189,93 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
 
     return (
       <section className={`${styles.productCatalogue} ${hasTeamsContext ? styles.teams : ''}`}>
-        <InventoryForm
-          ref={this.inventoryFormRef}
-          context={this.props.context}
-          onInventoryUpdated={this.refreshInventory}
-          lights={this.state.lights}
-        />
+
         <div className={styles.formActions}>
-          <PrimaryButton
-            text="Sales Dashboard"
-            onClick={this.salesDashboardUrl}
-            styles={{ root: { marginRight: 10 } }}
+          <div>
+            <InventoryForm
+              ref={this.inventoryFormRef}
+              context={this.props.context}
+              onInventoryUpdated={this.refreshInventory}
+              lights={this.state.lights}
+              isSiteOwner={this.state.isSiteOwner}
+            />
+          </div>
+          <div>
+            <PrimaryButton
+              text="Admin Dashboard"
+              onClick={() => this.navigateUrl(this.props.adminDashboard)}
+              styles={{ root: { marginRight: 10 } }}
+            />
+          </div>
+          <div>
+            <PrimaryButton
+              text="Inventory"
+              onClick={() => this.navigateUrl(this.props.inventoryList)}
+              styles={{ root: { marginRight: 10 } }}
+            />
+          </div>
+          {/* <Toggle
+            checked={this.state.showImageOrProductView}
+            onChange={this.onViewChange}
+            label="Image / Product View"
+          /> */}
+          <Toggle
+            checked={this.state.showImageOrProductView}
+            onChange={this.onViewChange}
+            label={this.state.showImageOrProductView ? "Product View" : "Image View"}
           />
         </div>
-        <div className={styles.lightsList}>
-          <div className={styles.Container}>
-            <h3>Available Lights:</h3>
+        {this.state.showImageOrProductView ?
+          <div className={styles.lightsList}>
+            <div className={styles.Container}>
+              <h3>Available Lights:</h3>
+            </div>
+            <div className={styles.dropdownContainer}>
+              <Dropdown
+                label="Select Category"
+                selectedKey={this.state.selectedCategory}
+                options={lightCategoryOptions}
+                onChange={(event, option) => this.setState({ selectedCategory: option?.key as string })}
+                styles={{ dropdown: { width: 300, borderRadius: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }, label: { fontWeight: 600 } }}
+              />
+            </div>
+            <div className={styles.searchContainer}>
+              <TextField
+                label="Search by Name or Product Code"
+                value={this.state.searchTerm}
+                onChange={(event, newValue) => this.setState({ searchTerm: newValue || '' })}
+                styles={{ fieldGroup: { width: 300, borderRadius: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' } }}
+                placeholder="Enter product name or code..."
+              />
+            </div>
+            <div className={styles.lightsGrid}>
+              {sortedLights.map(light => (
+                <div key={`${light.sourceList}-${light.Id}`} onClick={() => this.setState({ selectedLight: light, showModal: true })}>
+                  {this.renderLightCard(light)}
+                </div>
+              ))}
+            </div>
+            <Modal
+              isOpen={this.state.showModal}
+              onDismiss={() => this.setState({ showModal: false })}
+              isBlocking={false}
+              isModeless={false}
+            >
+              {this.state.selectedLight && (
+                <div className={styles.modalContainer}>
+                  <h2>{this.state.selectedLight.Title}</h2>
+                  <img src={this.state.selectedLight.ProductPicture?.Url} alt={this.state.selectedLight.Title} style={{ width: '100%', maxWidth: '500px' }} />
+                  {/* Assuming more images are in a field like Images */}
+                  {this.state.selectedLight.Images && this.state.selectedLight.Images.map((img: string, index: number) => (
+                    <img key={index} src={img} alt={`${this.state.selectedLight.Title} ${index + 1}`} style={{ width: '100%', maxWidth: '200px', margin: '10px' }} />
+                  ))}
+                </div>
+              )}
+            </Modal>
           </div>
-          <div className={styles.dropdownContainer}>
-            <Dropdown
-              label="Select Category"
-              selectedKey={this.state.selectedCategory}
-              options={lightCategoryOptions}
-              onChange={(event, option) => this.setState({ selectedCategory: option?.key as string })}
-              styles={{ dropdown: { width: 300, borderRadius: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }, label: { fontWeight: 600 } }}
-            />
-          </div>
-          <div className={styles.searchContainer}>
-            <TextField
-              label="Search by Name or Product Code"
-              value={this.state.searchTerm}
-              onChange={(event, newValue) => this.setState({ searchTerm: newValue || '' })}
-              styles={{ fieldGroup: { width: 300, borderRadius: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' } }}
-              placeholder="Enter product name or code..."
-            />
-          </div>
-          <div className={styles.lightsGrid}>
-            {sortedLights.map(light => (
-              <div key={`${light.sourceList}-${light.Id}`} onClick={() => this.setState({ selectedLight: light, showModal: true })}>
-                {this.renderLightCard(light)}
-              </div>
-            ))}
-          </div>
-          <Modal
-            isOpen={this.state.showModal}
-            onDismiss={() => this.setState({ showModal: false })}
-            isBlocking={false}
-            isModeless={false}
-          >
-            {this.state.selectedLight && (
-              <div className={styles.modalContainer}>
-                <h2>{this.state.selectedLight.Title}</h2>
-                <img src={this.state.selectedLight.ProductPicture?.Url} alt={this.state.selectedLight.Title} style={{ width: '100%', maxWidth: '500px' }} />
-                {/* Assuming more images are in a field like Images */}
-                {this.state.selectedLight.Images && this.state.selectedLight.Images.map((img: string, index: number) => (
-                  <img key={index} src={img} alt={`${this.state.selectedLight.Title} ${index + 1}`} style={{ width: '100%', maxWidth: '200px', margin: '10px' }} />
-                ))}
-              </div>
-            )}
-          </Modal>
-        </div>
+          :
+          <GalleryView lights={sortedLights}></GalleryView>
+        }
       </section>
     );
   }

@@ -97,14 +97,24 @@ export default class Inventory extends React.Component<IInventoryProps, IInvento
         ...lights.map((item: any) => ({ ...item, sourceList: 'Lights' }))
       ];
 
-      const soldQuantitiesByCode = inventoryItems.reduce((acc: Record<string, number>, item: any) => {
+      const inventoryImpactByCode = inventoryItems.reduce((acc: Record<string, { added: number; sold: number }>, item: any) => {
         const code = (item.ProductCode || '').toString().trim().toLowerCase();
         const quantity = Number(item.Quantity) || 0;
         if (!code || quantity === 0) {
           return acc;
         }
 
-        acc[code] = (acc[code] || 0) + quantity;
+        const eventType = (item.Event || 'Added').toString().trim().toLowerCase();
+        if (!acc[code]) {
+          acc[code] = { added: 0, sold: 0 };
+        }
+
+        if (eventType === 'sold') {
+          acc[code].sold += quantity;
+        } else {
+          acc[code].added += quantity;
+        }
+
         return acc;
       }, {});
 
@@ -116,8 +126,7 @@ export default class Inventory extends React.Component<IInventoryProps, IInvento
 
         const quantity = Number(item.Quantity) || 0;
         const title = item.Title || item.ProductCode || 'Inventory entry';
-
-        let eventType = item.Event;
+        const eventType = item.Event || 'Added';
 
         if (!acc[code]) {
           acc[code] = [];
@@ -177,8 +186,10 @@ export default class Inventory extends React.Component<IInventoryProps, IInvento
 
       const inventoryDetails = Object.keys(productMap).map(code => {
         const item = productMap[code];
-        const soldQuantity = soldQuantitiesByCode[code] || 0;
-        const remainingQuantity = Math.max(0, item.originalQuantity - soldQuantity);
+        const addedQuantity = inventoryImpactByCode[code]?.added || 0;
+        const soldQuantity = inventoryImpactByCode[code]?.sold || 0;
+        const currentStock = Math.max(0, item.originalQuantity + addedQuantity);
+        const remainingQuantity = Math.max(0, currentStock - soldQuantity);
 
         const lastEventType = item.history && item.history.length > 0
           ? item.history[item.history.length - 1].event
@@ -186,7 +197,9 @@ export default class Inventory extends React.Component<IInventoryProps, IInvento
 
         return {
           ...item,
+          addedQuantity,
           soldQuantity,
+          currentStock,
           remainingQuantity,
           lastEventType
         };
@@ -258,7 +271,7 @@ export default class Inventory extends React.Component<IInventoryProps, IInvento
                       </td>
                       <td>{item.productCode}</td>
                       <td>{item.category}</td>
-                      <td className={styles.numberCell}>{item.originalQuantity}</td>
+                      <td className={styles.numberCell}>{item.currentStock !== undefined ? item.currentStock : item.originalQuantity}</td>
                       <td className={styles.numberCell}>{item.soldQuantity}</td>
                       <td className={styles.numberCell}>{item.remainingQuantity}</td>
                       {this.state.isSiteOwner ? <td>
