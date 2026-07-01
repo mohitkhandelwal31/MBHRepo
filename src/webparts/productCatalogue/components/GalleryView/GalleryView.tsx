@@ -8,14 +8,31 @@ interface IGalleryViewProps {
 }
 
 export default class GalleryView extends React.Component<IGalleryViewProps> {
-    public render(): React.ReactElement {
-        return (
-            <>
-            <div className={styles.galleryView}>
+  public render(): React.ReactElement {
+    const { lights = [] } = this.props;
 
-            </div>
-            </>
-        );
-    }
+    return (
+      <div className={styles.galleryView}>
+        {lights.length === 0 ? (
+          <div className={styles.emptyState}>No lights available.</div>
+        ) : (
+          <div className={styles.galleryGrid}>
+            {lights.map((light) => {
+              const imageUrl = light.ProductPicture?.Url || light.ProductPicture || '';
 
+              return (
+                <div key={`${light.sourceList || 'light'}-${light.Id}`} className={styles.galleryItem}>
+                  {imageUrl ? (
+                    <img src={imageUrl} alt={light.Title || 'Light image'} className={styles.galleryImage} />
+                  ) : (
+                    <div className={styles.imagePlaceholder}>No image</div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  }
 }

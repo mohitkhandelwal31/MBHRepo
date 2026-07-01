@@ -167,7 +167,7 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
 
   public render(): React.ReactElement<IProductCatalogueProps> {
     const {
-      hasTeamsContext,
+
     } = this.props;
 
     let filteredLights = []
@@ -188,10 +188,9 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
     const sortedLights = [...inStockLights, ...outOfStockLights];
 
     return (
-      <section className={`${styles.productCatalogue} ${hasTeamsContext ? styles.teams : ''}`}>
-
-        <div className={styles.formActions}>
-          <div>
+      <section className={styles.productCatalogue}>
+        <div>
+          <div className={styles.buttonContainer}>
             <InventoryForm
               ref={this.inventoryFormRef}
               context={this.props.context}
@@ -199,37 +198,33 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
               lights={this.state.lights}
               isSiteOwner={this.state.isSiteOwner}
             />
+            <div>
+              <PrimaryButton
+                text="Admin Dashboard"
+                onClick={() => this.navigateUrl(this.props.adminDashboard)}
+                styles={{ root: { marginRight: 10 } }}
+              />
+            </div>
+            <div>
+              <PrimaryButton
+                text="Inventory"
+                onClick={() => this.navigateUrl(this.props.inventoryList)}
+                styles={{ root: { marginRight: 10 } }}
+              />
+            </div>
           </div>
-          <div>
-            <PrimaryButton
-              text="Admin Dashboard"
-              onClick={() => this.navigateUrl(this.props.adminDashboard)}
-              styles={{ root: { marginRight: 10 } }}
+          <div className={styles.toggleContainer}>
+            {/* <div> Select option to switch views</div> */}
+            <Toggle
+              checked={this.state.showImageOrProductView}
+              onChange={this.onViewChange}
+              label={this.state.showImageOrProductView ? "Product View" : "Image View"}
+              inlineLabel={true}
             />
           </div>
-          <div>
-            <PrimaryButton
-              text="Inventory"
-              onClick={() => this.navigateUrl(this.props.inventoryList)}
-              styles={{ root: { marginRight: 10 } }}
-            />
-          </div>
-          {/* <Toggle
-            checked={this.state.showImageOrProductView}
-            onChange={this.onViewChange}
-            label="Image / Product View"
-          /> */}
-          <Toggle
-            checked={this.state.showImageOrProductView}
-            onChange={this.onViewChange}
-            label={this.state.showImageOrProductView ? "Product View" : "Image View"}
-          />
         </div>
         {this.state.showImageOrProductView ?
           <div className={styles.lightsList}>
-            <div className={styles.Container}>
-              <h3>Available Lights:</h3>
-            </div>
             <div className={styles.dropdownContainer}>
               <Dropdown
                 label="Select Category"

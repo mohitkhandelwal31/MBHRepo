@@ -6,33 +6,32 @@
   color: "[theme:bodyText, default: #323130]";
   color: var(--bodyText);
 
-  &.teams {
-    font-family: $ms-font-family-fallbacks;
+  .buttonContainer {
+    display: flex;
+    gap: 10px;
   }
-}
 
-.welcome {
-  text-align: center;
-}
+  .toggleContainer {
+    display: flex;
+    gap: 10px;
+  }
 
-.welcomeImage {
-  width: 100%;
-  max-width: 420px;
-}
+  .inventoryForm {
+    margin-bottom: 20px;
 
-.links {
-  a {
-    text-decoration: none;
-    color: "[theme:link, default:#03787c]";
-    color: var(--link); // note: CSS Custom Properties support is limited to modern browsers only
+    .formActions {
+      margin-bottom: 15px;
+      display: flex;
+      gap: 10px;
+    }
 
-    &:hover {
-      text-decoration: underline;
-      color: "[theme:linkHovered, default: #014446]";
-      color: var(--linkHovered); // note: CSS Custom Properties support is limited to modern browsers only
+    .formContainer {
+      padding: 10px 0;
     }
   }
 }
+
+
 
 
 .inventorySummary {
@@ -190,19 +189,7 @@
   padding: 10px;
 }
 
-.inventoryForm {
-  margin-bottom: 20px;
 
-  .formActions {
-    margin-bottom: 15px;
-    display: flex;
-    gap: 10px;
-  }
-
-  .formContainer {
-    padding: 10px 0;
-  }
-}
 
 .lightItem {
   padding: 10px;
