@@ -164,6 +164,12 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
     });
   }
 
+  setShowItemModal = (show: boolean, light: any) => {
+    this.setState({
+      showModal: true,
+      selectedLight: light
+    });
+  }
 
   public render(): React.ReactElement<IProductCatalogueProps> {
     const {
@@ -223,26 +229,28 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
             />
           </div>
         </div>
+        <div style={{ placeItems: "center" }}>
+          <div className={styles.dropdownContainer}>
+            <Dropdown
+              label="Select Category"
+              selectedKey={this.state.selectedCategory}
+              options={lightCategoryOptions}
+              onChange={(event, option) => this.setState({ selectedCategory: option?.key as string })}
+              styles={{ dropdown: { width: 300, borderRadius: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }, label: { fontWeight: 600 } }}
+            />
+          </div>
+          <div className={styles.searchContainer}>
+            <TextField
+              label="Search by Name or Product Code"
+              value={this.state.searchTerm}
+              onChange={(event, newValue) => this.setState({ searchTerm: newValue || '' })}
+              styles={{ fieldGroup: { width: 300, borderRadius: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' } }}
+              placeholder="Enter product name or code..."
+            />
+          </div>
+        </div>
         {this.state.showImageOrProductView ?
           <div className={styles.lightsList}>
-            <div className={styles.dropdownContainer}>
-              <Dropdown
-                label="Select Category"
-                selectedKey={this.state.selectedCategory}
-                options={lightCategoryOptions}
-                onChange={(event, option) => this.setState({ selectedCategory: option?.key as string })}
-                styles={{ dropdown: { width: 300, borderRadius: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }, label: { fontWeight: 600 } }}
-              />
-            </div>
-            <div className={styles.searchContainer}>
-              <TextField
-                label="Search by Name or Product Code"
-                value={this.state.searchTerm}
-                onChange={(event, newValue) => this.setState({ searchTerm: newValue || '' })}
-                styles={{ fieldGroup: { width: 300, borderRadius: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' } }}
-                placeholder="Enter product name or code..."
-              />
-            </div>
             <div className={styles.lightsGrid}>
               {sortedLights.map(light => (
                 <div key={`${light.sourceList}-${light.Id}`} onClick={() => this.setState({ selectedLight: light, showModal: true })}>
@@ -250,27 +258,29 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
                 </div>
               ))}
             </div>
-            <Modal
-              isOpen={this.state.showModal}
-              onDismiss={() => this.setState({ showModal: false })}
-              isBlocking={false}
-              isModeless={false}
-            >
-              {this.state.selectedLight && (
-                <div className={styles.modalContainer}>
-                  <h2>{this.state.selectedLight.Title}</h2>
-                  <img src={this.state.selectedLight.ProductPicture?.Url} alt={this.state.selectedLight.Title} style={{ width: '100%', maxWidth: '500px' }} />
-                  {/* Assuming more images are in a field like Images */}
-                  {this.state.selectedLight.Images && this.state.selectedLight.Images.map((img: string, index: number) => (
-                    <img key={index} src={img} alt={`${this.state.selectedLight.Title} ${index + 1}`} style={{ width: '100%', maxWidth: '200px', margin: '10px' }} />
-                  ))}
-                </div>
-              )}
-            </Modal>
+
+
           </div>
           :
-          <GalleryView lights={sortedLights}></GalleryView>
+          <GalleryView lights={sortedLights} setShowItemModal={this.setShowItemModal}></GalleryView>
         }
+        <Modal
+          isOpen={this.state.showModal}
+          onDismiss={() => this.setState({ showModal: false })}
+          isBlocking={false}
+          isModeless={false}
+        >
+          {this.state.selectedLight && (
+            <div className={styles.modalContainer}>
+              <h2>{this.state.selectedLight.Title}</h2>
+              <img src={this.state.selectedLight.ProductPicture?.Url} alt={this.state.selectedLight.Title} style={{ width: '100%', maxWidth: '500px' }} />
+              {/* Assuming more images are in a field like Images */}
+              {this.state.selectedLight.Images && this.state.selectedLight.Images.map((img: string, index: number) => (
+                <img key={index} src={img} alt={`${this.state.selectedLight.Title} ${index + 1}`} style={{ width: '100%', maxWidth: '200px', margin: '10px' }} />
+              ))}
+            </div>
+          )}
+        </Modal>
       </section>
     );
   }

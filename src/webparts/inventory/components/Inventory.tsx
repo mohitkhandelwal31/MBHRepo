@@ -14,6 +14,7 @@ export interface IInventoryState {
   showHistoryModal: boolean;
   selectedHistoryProduct?: any;
   isSiteOwner: boolean;
+  isMobile: boolean;
 }
 
 export default class Inventory extends React.Component<IInventoryProps, IInventoryState> {
@@ -31,7 +32,8 @@ export default class Inventory extends React.Component<IInventoryProps, IInvento
       selectedProductTitle: undefined,
       showHistoryModal: false,
       selectedHistoryProduct: undefined,
-      isSiteOwner: false
+      isSiteOwner: false,
+      isMobile: false
     };
 
     this.spServices = new spservices(props.context.pageContext);
@@ -46,9 +48,19 @@ export default class Inventory extends React.Component<IInventoryProps, IInvento
   }
 
   public componentDidMount(): void {
+    this.updateIsMobile();
+    window.addEventListener('resize', this.updateIsMobile);
     this.checkSiteOwnerGroup();
     this.loadInventoryDetails();
   }
+
+  public componentWillUnmount(): void {
+    window.removeEventListener('resize', this.updateIsMobile);
+  }
+
+  private updateIsMobile = (): void => {
+    this.setState({ isMobile: window.innerWidth < 768 });
+  };
 
   private openImageModal = (item: any): void => {
     if (!item?.imageUrl) {
@@ -218,7 +230,7 @@ export default class Inventory extends React.Component<IInventoryProps, IInvento
       hasTeamsContext,
     } = this.props;
 
-    const { inventoryDetails, loading, error, showImageModal, selectedProductImageUrl, selectedProductTitle, showHistoryModal, selectedHistoryProduct } = this.state;
+    const { inventoryDetails, loading, error, showImageModal, selectedProductImageUrl, selectedProductTitle, showHistoryModal, selectedHistoryProduct, isMobile, isSiteOwner } = this.state;
 
     const totalDistinctProducts = inventoryDetails.length;
     const totalSold = inventoryDetails.reduce((sum, item) => sum + (item.soldQuantity || 0), 0);
@@ -241,52 +253,104 @@ export default class Inventory extends React.Component<IInventoryProps, IInvento
                 <div className={styles.summaryItem}>Total remaining quantity: {totalRemaining}</div>
                 <div className={styles.summaryItem}>Total sold quantity: {totalSold}</div>
               </div>
-              <table className={styles.inventoryTable}>
-                <thead>
-                  <tr>
-                    <th>Product</th>
-                    <th>Code</th>
-                    <th>Category</th>
-                    <th className={styles.numberCell}>Stock</th>
-                    <th className={styles.numberCell}>Sold</th>
-                    <th className={styles.numberCell}>Remaining</th>
-                    {this.state.isSiteOwner ? <th>More details</th> : ""}
-                  </tr>
-                </thead>
-                <tbody>
+              {isMobile ? (
+                <div className={styles.mobileCardList}>
                   {inventoryDetails.map(item => (
-                    <tr key={`${item.productCode}-${item.sourceList}`}>
-                      <td>
+                    <div key={`${item.productCode}-${item.sourceList}`} className={styles.mobileCard}>
+                      <div className={styles.mobileCardHeader}>
+                        <div className={styles.mobileCardTitle}>{item.title}</div>
                         {item.imageUrl ? (
                           <button
                             type="button"
                             className={styles.productLink}
                             onClick={() => this.openImageModal(item)}
                           >
-                            {item.title}
+                            View image
                           </button>
-                        ) : (
-                          item.title
-                        )}
-                      </td>
-                      <td>{item.productCode}</td>
-                      <td>{item.category}</td>
-                      <td className={styles.numberCell}>{item.currentStock !== undefined ? item.currentStock : item.originalQuantity}</td>
-                      <td className={styles.numberCell}>{item.soldQuantity}</td>
-                      <td className={styles.numberCell}>{item.remainingQuantity}</td>
-                      {this.state.isSiteOwner ? <td>
-                        <button
-                          type="button"
-                          className={styles.detailsButton}
-                          onClick={() => this.openHistoryModal(item)}
-                        >
-                          View history
-                        </button>
-                      </td> : ""}
-                    </tr>
+                        ) : null}
+                      </div>
+                      <div className={styles.mobileCardRow}>
+                        <span className={styles.mobileCardLabel}>Code</span>
+                        <span className={styles.mobileCardValue}>{item.productCode}</span>
+                      </div>
+                      <div className={styles.mobileCardRow}>
+                        <span className={styles.mobileCardLabel}>Category</span>
+                        <span className={styles.mobileCardValue}>{item.category}</span>
+                      </div>
+                      <div className={styles.mobileCardRow}>
+                        <span className={styles.mobileCardLabel}>Stock</span>
+                        <span className={styles.mobileCardValue}>{item.currentStock !== undefined ? item.currentStock : item.originalQuantity}</span>
+                      </div>
+                      <div className={styles.mobileCardRow}>
+                        <span className={styles.mobileCardLabel}>Sold</span>
+                        <span className={styles.mobileCardValue}>{item.soldQuantity}</span>
+                      </div>
+                      <div className={styles.mobileCardRow}>
+                        <span className={styles.mobileCardLabel}>Remaining</span>
+                        <span className={styles.mobileCardValue}>{item.remainingQuantity}</span>
+                      </div>
+                      {isSiteOwner ? (
+                        <div className={styles.mobileCardActions}>
+                          <button
+                            type="button"
+                            className={styles.detailsButton}
+                            onClick={() => this.openHistoryModal(item)}
+                          >
+                            View history
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
                   ))}
-                </tbody>
-              </table>
+                </div>
+              ) : (
+                <table className={styles.inventoryTable}>
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Code</th>
+                      <th>Category</th>
+                      <th className={styles.numberCell}>Stock</th>
+                      <th className={styles.numberCell}>Sold</th>
+                      <th className={styles.numberCell}>Remaining</th>
+                      {isSiteOwner ? <th>More details</th> : ""}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {inventoryDetails.map(item => (
+                      <tr key={`${item.productCode}-${item.sourceList}`}>
+                        <td>
+                          {item.imageUrl ? (
+                            <button
+                              type="button"
+                              className={styles.productLink}
+                              onClick={() => this.openImageModal(item)}
+                            >
+                              {item.title}
+                            </button>
+                          ) : (
+                            item.title
+                          )}
+                        </td>
+                        <td>{item.productCode}</td>
+                        <td>{item.category}</td>
+                        <td className={styles.numberCell}>{item.currentStock !== undefined ? item.currentStock : item.originalQuantity}</td>
+                        <td className={styles.numberCell}>{item.soldQuantity}</td>
+                        <td className={styles.numberCell}>{item.remainingQuantity}</td>
+                        {isSiteOwner ? <td>
+                          <button
+                            type="button"
+                            className={styles.detailsButton}
+                            onClick={() => this.openHistoryModal(item)}
+                          >
+                            View history
+                          </button>
+                        </td> : ""}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </>
           )}
         </div>

@@ -31,6 +31,58 @@
   font-weight: 600;
 }
 
+.mobileCardList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mobileCard {
+  border: 1px solid #e1e1e1;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fafafa;
+}
+
+.mobileCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.mobileCardTitle {
+  font-weight: 700;
+  flex: 1;
+}
+
+.mobileCardRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.mobileCardRow:last-child {
+  border-bottom: none;
+}
+
+.mobileCardLabel {
+  color: #5f6b7a;
+  font-size: 12px;
+}
+
+.mobileCardValue {
+  font-weight: 600;
+  text-align: right;
+}
+
+.mobileCardActions {
+  margin-top: 8px;
+}
+
 .inventoryTable {
   width: 100%;
   border-collapse: collapse;
@@ -155,5 +207,36 @@
       color: "[theme:linkHovered, default: #014446]";
       color: var(--linkHovered); // note: CSS Custom Properties support is limited to modern browsers only
     }
+  }
+}
+
+@media (max-width: 768px) {
+  .inventory {
+    padding: 0.75em;
+  }
+
+  .inventorySummary {
+    margin-top: 12px;
+    padding: 12px;
+  }
+
+  .summaryRow {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .summaryItem {
+    min-width: 0;
+  }
+
+  .productLink,
+  .detailsButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    padding: 6px 10px;
+    border-radius: 4px;
+    background: #f3f2f1;
   }
 }
