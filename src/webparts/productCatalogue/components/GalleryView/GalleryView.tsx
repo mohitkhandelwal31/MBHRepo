@@ -27,6 +27,9 @@ export default class GalleryView extends React.Component<IGalleryViewProps> {
                                         this.props.setShowItemModal(true, light);
                                     }}
                                     key={`${light.sourceList || 'light'}-${light.Id}`} className={styles.galleryItem}>
+                                    {String(light.IsNew || '').trim().toLowerCase() === 'true' && (
+                                        <span style={{ position: 'absolute', top: 8, left: 8, zIndex: 1, padding: '4px 8px', borderRadius: 4, background: '#d83b01', color: '#fff', fontSize: 11, fontWeight: 700, letterSpacing: '0.04em' }}>NEW</span>
+                                    )}
                                     {imageUrl ? (
                                         <div className={styles.galleryContainer}>
                                             <img title={light.ProductCode} src={imageUrl} alt={light.Title || 'Light image'} className={styles.galleryImage} />

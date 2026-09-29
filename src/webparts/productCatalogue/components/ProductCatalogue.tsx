@@ -37,6 +37,7 @@ const lightCategoryOptions: IDropdownOption[] = [
 export default class ProductCatalogue extends React.Component<IProductCatalogueProps, IProductCatalogueState> {
   private spServices: spservices;
   private inventoryFormRef: React.RefObject<InventoryForm>;
+  private pageScrollPositions: Array<{ element: HTMLElement; top: number; left: number }> = [];
   constructor(props: IProductCatalogueProps) {
     super(props);
     this.state = {
@@ -77,6 +78,9 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
         <DocumentCardDetails>
           <div style={{ position: 'relative' }}>
             <img src={light.ProductPicture?.Url} alt={light.ProductPicture?.Url} style={{ width: '100%', height: '200px', objectFit: 'fill' }} />
+            {String(light.IsNew || '').trim().toLowerCase() === 'true' && (
+              <span style={{ position: 'absolute', top: 8, left: 8, padding: '4px 8px', borderRadius: 4, background: '#d83b01', color: '#fff', fontSize: 11, fontWeight: 700, letterSpacing: '0.04em' }}>NEW</span>
+            )}
           </div>
           <div className={styles.titleContainer}>
             <div>{light.Title}</div>
@@ -165,9 +169,63 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
   }
 
   setShowItemModal = (show: boolean, light: any) => {
+    if (!show) {
+      this.closeItemModal();
+      return;
+    }
+    this.capturePageScroll();
     this.setState({
       showModal: true,
       selectedLight: light
+    });
+    this.restorePageScroll();
+  }
+
+  private openItemModal = (light: any): void => {
+    this.capturePageScroll();
+    this.setState({ showModal: true, selectedLight: light });
+    this.restorePageScroll();
+  }
+
+  private closeItemModal = (): void => {
+    this.setState({ showModal: false }, () => {
+      this.restorePageScroll();
+      window.setTimeout(this.restorePageScroll, 100);
+    });
+  }
+
+  private capturePageScroll = (): void => {
+    const scrollableElements = document.querySelectorAll<HTMLElement>('body, html, *');
+    this.pageScrollPositions = [];
+    for (let index = 0; index < scrollableElements.length; index++) {
+      const element: HTMLElement = scrollableElements[index];
+      if (element.scrollTop > 0 || element.scrollLeft > 0) {
+        this.pageScrollPositions.push({
+          element,
+          top: element.scrollTop,
+          left: element.scrollLeft
+        });
+      }
+    }
+    this.pageScrollPositions.push({
+      element: document.documentElement,
+      top: window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop,
+      left: window.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft
+    });
+  }
+
+  private restorePageScroll = (): void => {
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        this.pageScrollPositions.forEach(({ element, top, left }) => {
+          if (element.isConnected) {
+            element.scrollTop = top;
+            element.scrollLeft = left;
+          }
+        });
+        const documentPosition = this.pageScrollPositions[this.pageScrollPositions.length - 1];
+        window.scrollTo(documentPosition.left, documentPosition.top);
+      });
     });
   }
 
@@ -189,9 +247,16 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
       );
     }
 
+    const hasProductImage = (light: any): boolean => Boolean(
+      light.ProductPicture?.Url ||
+      light.ProductPicture?.ServerRelativeUrl ||
+      (typeof light.ProductPicture === 'string' && light.ProductPicture.trim())
+    );
     const inStockLights = filteredLights.filter(light => light.availableQuantity > 0);
+    const inStockLightsWithImage = inStockLights.filter(hasProductImage);
+    const inStockLightsWithoutImage = inStockLights.filter(light => !hasProductImage(light));
     const outOfStockLights = filteredLights.filter(light => light.availableQuantity === 0);
-    const sortedLights = [...inStockLights, ...outOfStockLights];
+    const sortedLights = [...inStockLightsWithImage, ...inStockLightsWithoutImage, ...outOfStockLights];
 
     return (
       <section className={styles.productCatalogue}>
@@ -253,7 +318,7 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
           <div className={styles.lightsList}>
             <div className={styles.lightsGrid}>
               {sortedLights.map(light => (
-                <div key={`${light.sourceList}-${light.Id}`} onClick={() => this.setState({ selectedLight: light, showModal: true })}>
+                <div key={`${light.sourceList}-${light.Id}`} onClick={() => this.openItemModal(light)}>
                   {this.renderLightCard(light)}
                 </div>
               ))}
@@ -266,9 +331,10 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
         }
         <Modal
           isOpen={this.state.showModal}
-          onDismiss={() => this.setState({ showModal: false })}
+          onDismiss={this.closeItemModal}
           isBlocking={false}
           isModeless={false}
+          focusTrapZoneProps={{ disableRestoreFocus: true }}
         >
           {this.state.selectedLight && (
             <div className={styles.modalContainer}>

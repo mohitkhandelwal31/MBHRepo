@@ -15,6 +15,7 @@ export interface IInventoryFormState {
         ProductCode: string;
         Price: number;
         Quantity: number;
+        Date: string;
         Category: string;
         Color?: string;
         CompanyType?: string;
@@ -37,6 +38,12 @@ const eventTypeOptions: IDropdownOption[] = [
     }
 ]
 
+const getTodayDateValue = (): string => {
+    const today = new Date();
+    const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000);
+    return localDate.toISOString().slice(0, 10);
+};
+
 interface IInventoryFormProps {
     context: any;
     onInventoryUpdated: () => void;
@@ -57,6 +64,7 @@ export default class InventoryForm extends React.Component<IInventoryFormProps, 
                 ProductCode: '',
                 Price: 0,
                 Quantity: 0,
+                Date: getTodayDateValue(),
                 Category: '',
                 Color: '',
                 CompanyType: '',
@@ -79,6 +87,7 @@ export default class InventoryForm extends React.Component<IInventoryFormProps, 
                 ProductCode: '',
                 Price: 0,
                 Quantity: 0,
+                Date: getTodayDateValue(),
                 Category: '',
                 Color: '',
                 CompanyType: ''
@@ -132,8 +141,8 @@ export default class InventoryForm extends React.Component<IInventoryFormProps, 
             const { formData } = this.state;
 
             // Validate required fields
-            if (!formData.Title || !formData.ProductCode || !formData.Quantity || !formData.Price) {
-                alert('Please fill in all required fields (Title, Product Code, Quantity, Price)');
+            if (!formData.Title || !formData.ProductCode || !formData.Quantity || !formData.Price || !formData.Date) {
+                alert('Please fill in all required fields (Title, Product Code, Quantity, Price, Date)');
                 return;
             }
             else if (!this.state.searchedProduct || this.state.searchedProduct.length === 0) {
@@ -147,7 +156,7 @@ export default class InventoryForm extends React.Component<IInventoryFormProps, 
                 Quantity: formData.Quantity,
                 Event: formData.Event,
                 Category: this.state.Category,
-                Date: new Date().toISOString()
+                Date: new Date(formData.Date).toISOString()
             };
             // Add new item
             await this.spServices.addInventory(this.props.context, itemData);
@@ -246,6 +255,14 @@ export default class InventoryForm extends React.Component<IInventoryFormProps, 
                             type="number"
                             value={formData.Quantity.toString()}
                             onChange={(event, newValue) => this.handleInputChange('Quantity', parseInt(newValue || '0'))}
+                            styles={{ fieldGroup: { marginBottom: 15 } }}
+                            required
+                        />
+                        <TextField
+                            label="Date"
+                            type="date"
+                            value={formData.Date}
+                            onChange={(event, newValue) => this.handleInputChange('Date', newValue || '')}
                             styles={{ fieldGroup: { marginBottom: 15 } }}
                             required
                         />

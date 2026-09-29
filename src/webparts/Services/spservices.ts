@@ -15,7 +15,7 @@ export default class spservices {
 
     getDecorativeLightsItems = async (context: WebPartContext): Promise<any[]> => {
         try {
-            const items = await this.sp.web.lists.getByTitle("Decorative lights").items.select("Id", "Title", "Price", "ProductCode", "Quantity", "ProductPicture", "Category","Actualprice")();
+            const items = await this.sp.web.lists.getByTitle("Decorative lights").items.select("Id", "Title", "Price", "ProductCode", "Quantity", "ProductPicture", "Category","Actualprice","IsNew")();
             return items;
         } catch (error) {
             console.error("Error fetching items from Decorative lights list:", error);
