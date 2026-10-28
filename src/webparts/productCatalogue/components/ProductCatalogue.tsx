@@ -22,6 +22,7 @@ export interface IProductCatalogueState {
   searchTerm: string;
   isSiteOwner: boolean;
   showImageOrProductView: boolean;
+  showActualPrice: boolean;
 }
 
 // Combined category options for merged results
@@ -48,7 +49,8 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
       selectedCategory: 'All',
       searchTerm: '',
       isSiteOwner: false,
-      showImageOrProductView: true
+      showImageOrProductView: true,
+      showActualPrice: false
     };
     this.spServices = new spservices(props.context.pageContext);
     this.inventoryFormRef = React.createRef<InventoryForm>();
@@ -89,7 +91,7 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
             <div className={styles.attribute}>Price</div>
             <div className={styles.attributeValue}>{light.Price?.toFixed(2)}</div>
           </div>
-          {this.state.isSiteOwner && (
+          {this.state.isSiteOwner && this.state.showActualPrice && (
             <div className={styles.actualPriceContainer}>
               <div className={styles.attribute}>A.Price</div>
               <div className={styles.attributeValue}>{light.Actualprice?.toFixed(2)}</div>
@@ -285,7 +287,14 @@ export default class ProductCatalogue extends React.Component<IProductCatalogueP
             </div>
           </div>
           <div className={styles.toggleContainer}>
-            {/* <div> Select option to switch views</div> */}
+            {this.state.isSiteOwner && (
+              <Toggle
+                checked={this.state.showActualPrice}
+                onChange={(_event, checked) => this.setState({ showActualPrice: !!checked })}
+                label="Show Actual Price"
+                inlineLabel={true}
+              />
+            )}
             <Toggle
               checked={this.state.showImageOrProductView}
               onChange={this.onViewChange}
